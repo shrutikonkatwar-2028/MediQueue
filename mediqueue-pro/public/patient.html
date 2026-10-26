@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MediQueue - Patient</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/patient.html"></a>
+  <div class="right"><a class="link" href="/display.html" target="_blank">Display board</a><span id="who"></span><button class="btn light sm" onclick="logout()">Log out</button></div>
+</header>
+<nav class="tabs">
+  <button data-tab="queue" class="active">My queue</button>
+  <button data-tab="book">Book appointment</button>
+  <button data-tab="history">Visit history</button>
+  <button data-tab="bills">Bills</button>
+  <button data-tab="profile">My profile</button>
+</nav>
+<main>
+  <section id="tab-queue">
+    <div id="active"></div>
+    <div class="card">
+      <div class="row between"><h2 style="border:0;margin:0">Notifications</h2><button class="btn ghost sm" id="markRead">Mark all as read</button></div>
+      <div id="notes"></div>
+    </div>
+  </section>
+
+  <section id="tab-book" hidden>
+    <div class="grid g2">
+      <div>
+        <h2>1. Choose a doctor</h2>
+        <label for="spec">Specialty</label>
+        <select id="spec"><option value="">All specialties</option></select>
+        <div id="doctors" style="margin-top:14px"></div>
+      </div>
+      <div class="card">
+        <h2>2. Tell us why you are coming</h2>
+        <label for="date">Date</label>
+        <input type="date" id="date">
+        <label for="cat">What best describes your problem?</label>
+        <select id="cat"></select>
+        <label for="symptoms">Symptoms (optional)</label>
+        <textarea id="symptoms" maxlength="500" placeholder="Describe your symptoms in a few words"></textarea>
+        <p id="chosen" class="muted small">No doctor selected yet.</p>
+        <button class="btn lg" id="bookBtn">Book appointment</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-history" hidden></section>
+  <section id="tab-bills" hidden></section>
+
+  <section id="tab-profile" hidden>
+    <div class="card" style="max-width:760px">
+      <h2>My profile</h2>
+      <form id="profForm">
+        <div class="form-grid">
+          <div><label for="pname">Full name</label><input id="pname" required maxlength="80"></div>
+          <div><label for="pphone">Phone</label><input id="pphone" inputmode="tel"></div>
+          <div><label for="pdob">Date of birth</label><input id="pdob" type="date" required></div>
+          <div><label for="pgender">Gender</label><select id="pgender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+          <div><label for="pblood">Blood group</label>
+            <select id="pblood"><option value="">Not sure</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+          <div><label for="pallergy">Allergies</label><input id="pallergy" maxlength="200"></div>
+        </div>
+        <label for="phist">Medical history</label><textarea id="phist" maxlength="500"></textarea>
+        <label for="paddr">Address</label><input id="paddr" maxlength="200">
+        <label for="pemerg">Emergency contact (name and phone)</label><input id="pemerg" maxlength="100">
+        <label class="check"><input type="checkbox" id="pchronic"> I have a chronic condition (diabetes, heart disease, etc.)</label>
+        <p class="small muted">Age and chronic condition affect your priority in the queue, so please keep them up to date. Email: <b id="pemail"></b></p>
+        <p><button class="btn" type="submit">Save profile</button></p>
+      </form>
+    </div>
+  </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/patient.js"></script>
+</body>
+</html>

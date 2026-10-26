@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MediQueue - Log in</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="auth-wrap">
+  <section class="hero">
+    <div id="heroLogo"></div>
+    <h1>MediQueue</h1>
+    <p>Smart hospital queue and doctor tracking. No more guessing: know your turn, your waiting time and where your doctor is.</p>
+    <ul>
+      <li>Book appointments online with the doctor of your choice</li>
+      <li>Live token, queue position and estimated waiting time</li>
+      <li>Emergency patients are seen first, fairly and automatically</li>
+      <li>Prescriptions, visit history and bills in one place</li>
+    </ul>
+    <p class="small"><a href="/display.html">Open the waiting-room display board</a></p>
+  </section>
+
+  <section class="auth-side">
+    <div class="auth-box">
+      <div class="card" id="loginBox">
+        <h2>Log in</h2>
+        <form id="loginForm">
+          <label for="lemail">Email</label>
+          <input id="lemail" type="email" autocomplete="username" required>
+          <label for="lpass">Password</label>
+          <input id="lpass" type="password" autocomplete="current-password" required>
+          <p id="lerr" class="callout err" hidden></p>
+          <p><button class="btn lg" type="submit" style="width:100%">Log in</button></p>
+        </form>
+        <p class="small">New patient? <a href="#" id="toRegister">Create an account</a></p>
+        <div class="demo">
+          <b>Test accounts</b> (after <code>npm run seed</code>):<br>
+          patient@mediqueue.com / patient123<br>
+          doctor@mediqueue.com / doctor123<br>
+          admin@mediqueue.com / admin123<br>
+          reception@mediqueue.com / reception123
+        </div>
+      </div>
+
+      <div class="card" id="regBox" hidden>
+        <h2>Create patient account</h2>
+        <form id="regForm">
+          <div class="form-grid">
+            <div><label for="rname">Full name</label><input id="rname" required maxlength="80"></div>
+            <div><label for="remail">Email</label><input id="remail" type="email" required></div>
+            <div><label for="rphone">Phone</label><input id="rphone" inputmode="tel"></div>
+            <div><label for="rpass">Password (8+, letters and numbers)</label><input id="rpass" type="password" minlength="8" required autocomplete="new-password"></div>
+            <div><label for="rdob">Date of birth</label><input id="rdob" type="date" required></div>
+            <div><label for="rgender">Gender</label>
+              <select id="rgender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+            <div><label for="rblood">Blood group</label>
+              <select id="rblood"><option value="">Not sure</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+            <div><label for="rallergy">Allergies (optional)</label><input id="rallergy" maxlength="200"></div>
+          </div>
+          <label for="rhist">Medical history (optional)</label>
+          <textarea id="rhist" maxlength="500" placeholder="For example: diabetes, asthma"></textarea>
+          <label for="raddr">Address (optional)</label><input id="raddr" maxlength="200">
+          <label for="remerg">Emergency contact (name and phone)</label><input id="remerg" maxlength="100">
+          <label class="check"><input type="checkbox" id="rchronic"> I have a chronic condition (diabetes, heart disease, etc.)</label>
+          <p id="rerr" class="callout err" hidden></p>
+          <p><button class="btn lg" type="submit" style="width:100%">Create account</button></p>
+        </form>
+        <p class="small">Already registered? <a href="#" id="toLogin">Log in</a></p>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="/js/common.js"></script>
+<script>
+  $('#heroLogo').innerHTML = logoSvg(84);
+  const existing = getUser();
+  if (getToken() && existing && HOME[existing.role]) location.replace(HOME[existing.role]);
+
+  $('#rdob').max = todayStr();
+  const flip = reg => { $('#loginBox').hidden = reg; $('#regBox').hidden = !reg; };
+  $('#toRegister').onclick = e => { e.preventDefault(); flip(true); };
+  $('#toLogin').onclick = e => { e.preventDefault(); flip(false); };
+  const fail = (id, msg) => { const el = $(id); el.textContent = msg; el.hidden = false; };
+
+  async function submit(path, body, errId, btn) {
+    localStorage.removeItem('mq_token'); localStorage.removeItem('mq_user');
+    btn.disabled = true;
+    try {
+      const s = await api(path, { method: 'POST', body });
+      saveSession(s);
+      location.href = HOME[s.user.role];
+    } catch (e) { fail(errId, e.message); }
+    finally { btn.disabled = false; }
+  }
+  $('#loginForm').onsubmit = e => {
+    e.preventDefault(); $('#lerr').hidden = true;
+    submit('/auth/login', { email: $('#lemail').value, password: $('#lpass').value }, '#lerr', e.submitter);
+  };
+  $('#regForm').onsubmit = e => {
+    e.preventDefault(); $('#rerr').hidden = true;
+    submit('/auth/register', {
+      name: $('#rname').value, email: $('#remail').value, phone: $('#rphone').value, password: $('#rpass').value,
+      dob: $('#rdob').value, gender: $('#rgender').value, blood_group: $('#rblood').value, allergies: $('#rallergy').value,
+      medical_history: $('#rhist').value, address: $('#raddr').value, emergency_contact: $('#remerg').value,
+      chronic_flag: $('#rchronic').checked
+    }, '#rerr', e.submitter);
+  };
+</script>
+</body>
+</html>

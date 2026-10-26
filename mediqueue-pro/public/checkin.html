@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MediQueue - Check in</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="auth-side" style="min-height:100vh">
+  <div class="auth-box">
+    <div class="row" style="justify-content:center;margin-bottom:12px"><span id="ciLogo"></span><h1 style="margin:0">MediQueue</h1></div>
+    <div class="card" id="box"><p class="muted">Checking you in...</p></div>
+  </div>
+</div>
+<script src="/js/common.js"></script>
+<script>
+  $('#ciLogo').innerHTML = logoSvg(48);
+  (async function () {
+    const code = new URLSearchParams(location.search).get('code');
+    const box = $('#box');
+    if (!code) { box.innerHTML = '<div class="callout err">This check-in link is missing its code. Scan the QR code again.</div>'; return; }
+    try {
+      const r = await api('/checkin/' + encodeURIComponent(code), { method: 'POST' });
+      if (r.status === 'In consultation') {
+        box.innerHTML = `<h2>It is your turn</h2><div class="token">${esc(r.token_no)}</div><div class="callout go">Please go to Room ${esc(r.room)}.</div>`;
+        return;
+      }
+      box.innerHTML = `<h2>${r.already ? 'You are already checked in' : 'You are checked in'}</h2>
+        <div class="token">${esc(r.token_no)}</div>
+        <p>${esc(drName(r.doctor_name))} · Room ${esc(r.room)}</p><p>${labelBadge(r.label)}</p>
+        ${r.patients_ahead === 0 ? '<div class="callout go">You are next.</div>'
+          : `<div class="stats3"><div><span class="big">${r.patients_ahead}</span><small>patients ahead</small></div>
+             <div><span class="big">${r.estimated_wait}</span><small>min wait</small></div>
+             <div><span class="big">${r.position}</span><small>position</small></div></div>`}
+        <p class="small muted">Log in to MediQueue on your phone to follow the queue live.</p>`;
+    } catch (e) { box.innerHTML = `<div class="callout err">${esc(e.message)}</div>`; }
+  })();
+</script>
+</body>
+</html>

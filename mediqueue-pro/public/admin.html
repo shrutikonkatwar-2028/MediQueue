@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MediQueue - Admin</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/admin.html"></a>
+  <div class="right"><a class="link" href="/reception.html">Reception desk</a><a class="link" href="/display.html" target="_blank">Display board</a><span id="who"></span><button class="btn light sm" onclick="logout()">Log out</button></div>
+</header>
+<nav class="tabs">
+  <button data-tab="overview" class="active">Overview</button>
+  <button data-tab="doctors">Doctors</button>
+  <button data-tab="users">Users</button>
+  <button data-tab="billing">Billing</button>
+  <button data-tab="analytics">Analytics</button>
+  <button data-tab="announce">Announcements</button>
+  <button data-tab="audit">Audit log</button>
+</nav>
+<main>
+  <section id="tab-overview">
+    <div class="section-title"><h1 style="margin:0">Today at a glance</h1><span id="ovDate"></span></div>
+    <div class="kpis" id="ovKpis"></div>
+    <div class="grid g2">
+      <div class="card"><h2>Needs attention</h2><div class="alerts" id="ovAlerts"></div></div>
+      <div class="card"><h2>Today's patient flow</h2><p class="insight">Where today's patients are right now.</p><div id="ovFlow"></div></div>
+    </div>
+    <div class="card"><h2>Doctors right now</h2><div class="scroll" id="liveDoctors"></div></div>
+    <div class="card"><h2>Latest appointments</h2><div class="scroll" id="recent"></div></div>
+  </section>
+
+  <section id="tab-doctors" hidden>
+    <div class="card"><h2>All doctors</h2><div class="scroll" id="docTable"></div></div>
+    <div class="grid g2">
+      <div class="card">
+        <h2>Add a doctor</h2>
+        <form id="docForm">
+          <div class="form-grid">
+            <div><label for="dname">Name</label><input id="dname" required></div>
+            <div><label for="demail">Email</label><input id="demail" type="email" required></div>
+            <div><label for="dpass">Password (8+, letters and numbers)</label><input id="dpass" type="password" minlength="8" required autocomplete="new-password"></div>
+            <div><label for="dphone">Phone</label><input id="dphone"></div>
+            <div><label for="dspec">Specialty</label><select id="dspec" required></select></div>
+            <div><label for="droom">Room</label><input id="droom" required></div>
+            <div><label for="davg">Avg consult time (min)</label><input id="davg" type="number" min="1" max="120" value="10" required></div>
+            <div><label for="dexp">Experience (years)</label><input id="dexp" type="number" min="0" max="70" value="0"></div>
+            <div><label for="dfee">Consultation fee (Rs.)</label><input id="dfee" type="number" min="0" value="500"></div>
+            <div><label for="dmax">Max patients per day</label><input id="dmax" type="number" min="1" max="500" value="40"></div>
+          </div>
+          <label for="dqual">Qualification</label><input id="dqual" maxlength="120" placeholder="MBBS, MD">
+          <p><button class="btn" type="submit">Add doctor</button></p>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Specialties</h2>
+        <div id="specList"></div>
+        <form id="specForm" class="row" style="margin-top:12px">
+          <input id="sname" required maxlength="50" placeholder="New specialty name" style="flex:1;min-width:160px" aria-label="New specialty name">
+          <button class="btn" type="submit">Add</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-users" hidden>
+    <div class="card">
+      <h2>Users</h2>
+      <div class="row">
+        <select id="uRole" style="width:auto" aria-label="Role filter"><option value="">All roles</option><option value="patient">Patients</option><option value="doctor">Doctors</option><option value="receptionist">Receptionists</option><option value="admin">Admins</option></select>
+        <input id="uSearch" placeholder="Search name, email or phone" style="flex:1;min-width:200px" aria-label="Search users">
+      </div>
+      <div class="scroll" id="userTable" style="margin-top:12px"></div>
+      <div id="userPager"></div>
+    </div>
+    <div class="card" style="max-width:640px">
+      <h2>Add staff account</h2>
+      <form id="staffForm">
+        <div class="form-grid">
+          <div><label for="stname">Name</label><input id="stname" required></div>
+          <div><label for="stemail">Email</label><input id="stemail" type="email" required></div>
+          <div><label for="stpass">Password</label><input id="stpass" type="password" minlength="8" required autocomplete="new-password"></div>
+          <div><label for="strole">Role</label><select id="strole"><option value="receptionist">Receptionist</option><option value="admin">Admin</option></select></div>
+        </div>
+        <p><button class="btn" type="submit">Add staff</button></p>
+      </form>
+    </div>
+  </section>
+
+  <section id="tab-billing" hidden>
+    <div class="card">
+      <div class="row between"><h2 style="margin:0;border:0">Bills</h2>
+        <div class="row"><input id="billSearch" placeholder="Search patient, doctor or token" style="width:230px" aria-label="Search bills">
+        <select id="billStatus" style="width:auto" aria-label="Bill status"><option value="">All bills</option><option>Pending</option><option>Paid</option><option>Waived</option></select></div></div>
+      <p class="note-box" style="margin-top:10px">Only admin and reception can change payment details. Patients can only view their bills.</p>
+      <div class="scroll" id="billTable" style="margin-top:12px"></div>
+    </div>
+    <div class="card"><h2>Data export</h2>
+      <p class="muted small">Download hospital data as CSV files for Excel. These downloads are recorded in the audit log.</p>
+      <div class="row"><button class="btn ghost" data-export="appointments">Appointments</button><button class="btn ghost" data-export="bills">Bills</button><button class="btn ghost" data-export="patients">Patients</button></div></div>
+  </section>
+
+  <section id="tab-analytics" hidden>
+    <div class="section-title"><div><h1 style="margin:0">Analytics</h1><span id="anRange"></span></div>
+      <div class="period" id="anPeriod"><button data-d="7" class="active">7 days</button><button data-d="30">30 days</button><button data-d="90">90 days</button></div></div>
+    <div class="kpis" id="anKpis"></div>
+
+    <div class="card chart-card"><h2>Appointments and completed visits</h2><p class="insight" id="inAppts"></p><div id="chAppts"></div></div>
+    <div class="grid g2">
+      <div class="card chart-card"><h2>Revenue collected</h2><p class="insight" id="inRev"></p><div id="chRev"></div></div>
+      <div class="card chart-card"><h2>Revenue by payment method</h2><p class="insight" id="inPay"></p><div id="chPay"></div></div>
+      <div class="card chart-card"><h2>What happened to the appointments</h2><p class="insight" id="inStatus"></p><div id="chStatus"></div></div>
+      <div class="card chart-card"><h2>Patient priority mix</h2><p class="insight" id="inPrio"></p><div id="chPrio"></div></div>
+      <div class="card chart-card"><h2>Busiest hours</h2><p class="insight" id="inHours"></p><div id="chHours"></div></div>
+      <div class="card chart-card"><h2>Average waiting time by doctor</h2><p class="insight" id="inWait"></p><div id="chWait"></div></div>
+      <div class="card chart-card"><h2>Appointments by specialty</h2><p class="insight" id="inSpec"></p><div id="chSpec"></div></div>
+      <div class="card chart-card"><h2>Top doctors</h2><p class="insight" id="inTop"></p><div id="chTop"></div></div>
+    </div>
+    <p class="note-box"><b>How to read this page:</b> every number is compared with the previous period of the same length.
+      Green means better, red means worse. <b>Waiting time</b> = from check-in until the doctor calls the patient.
+      <b>Completion rate</b> = completed visits out of all finished appointments (completed, missed and cancelled).
+      <b>Revenue</b> counts paid bills by visit date.</p>
+  </section>
+
+  <section id="tab-announce" hidden>
+    <div class="card" style="max-width:640px">
+      <h2>Send an announcement</h2>
+      <p class="muted small">It appears as a notification for every selected user, live if they are online.</p>
+      <form id="annForm">
+        <label for="annAud">Send to</label>
+        <select id="annAud"><option value="patients">All patients</option><option value="doctors">All doctors</option><option value="staff">All staff</option><option value="all">Everyone</option></select>
+        <label for="annMsg">Message</label><textarea id="annMsg" maxlength="280" required placeholder="For example: OPD will close at 1 pm on Saturday"></textarea>
+        <p><button class="btn" type="submit">Send</button></p>
+      </form>
+    </div>
+  </section>
+
+  <section id="tab-audit" hidden>
+    <div class="card"><h2>Audit log</h2><div class="scroll" id="auditTable"></div><div id="auditPager"></div></div>
+  </section>
+</main>
+
+<dialog id="editDlg">
+  <h2 id="editTitle">Edit doctor</h2>
+  <form id="editForm">
+    <div class="form-grid">
+      <div><label for="eSpec">Specialty</label><select id="eSpec"></select></div>
+      <div><label for="eRoom">Room</label><input id="eRoom" required></div>
+      <div><label for="eAvg">Avg consult time (min)</label><input id="eAvg" type="number" min="1" max="120" required></div>
+      <div><label for="eExp">Experience (years)</label><input id="eExp" type="number" min="0" max="70"></div>
+      <div><label for="eFee">Consultation fee (Rs.)</label><input id="eFee" type="number" min="0"></div>
+      <div><label for="eMax">Max patients per day</label><input id="eMax" type="number" min="1" max="500"></div>
+    </div>
+    <label for="eQual">Qualification</label><input id="eQual" maxlength="120">
+    <label class="check"><input type="checkbox" id="eActive"> Account active (can log in and be booked)</label>
+    <div class="row" style="margin-top:16px"><button class="btn" type="submit">Save</button><button class="btn ghost" type="button" id="editCancel">Cancel</button></div>
+  </form>
+</dialog>
+<dialog id="schedDlg">
+  <h2 id="schedTitle">Weekly schedule</h2>
+  <div id="schedBox"></div>
+  <div class="row" style="margin-top:16px"><button class="btn" id="schedSave">Save schedule</button><button class="btn ghost" id="schedCancel">Cancel</button></div>
+</dialog>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/charts.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

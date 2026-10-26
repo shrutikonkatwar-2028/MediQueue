@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MediQueue - Display board</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="board-body">
+  <div class="board-head">
+    <div class="row" style="gap:14px"><span id="boardLogo"></span><div><h1>Now serving</h1><div class="muted" style="color:#bfe6d1" id="boardHosp"></div></div></div>
+    <div class="clock" id="clock"></div>
+  </div>
+  <div class="board-grid" id="board"></div>
+  <p class="small" style="color:#7fb497;margin-top:20px">This screen updates automatically. Only token numbers are shown to protect patient privacy.</p>
+<script src="/js/common.js"></script>
+<script>
+  $('#boardLogo').innerHTML = logoSvg(64);
+  const clock = () => { $('#clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); };
+  clock(); setInterval(clock, 15000);
+
+  async function load() {
+    try {
+      const r = await (await fetch('/api/public/display')).json();
+      $('#boardHosp').textContent = r.hospital;
+      $('#board').innerHTML = r.doctors.map(d => `
+        <div class="bcard">
+          <h2>${esc(drName(d.name))}</h2>
+          <div class="room">${esc(d.specialty)} · Room ${esc(d.room)}</div>
+          <div class="now"><small>NOW SERVING</small>
+            ${d.now_serving ? `<b>${esc(d.now_serving)}</b>` : `<b class="empty-token">${d.status === 'In OPD' ? 'Waiting for next' : esc(d.status)}</b>`}</div>
+          <div class="row between"><span class="small" style="color:#bfe6d1">Next:</span>
+            <div class="chips">${d.next.length ? d.next.map(n => `<span class="chip ${n.label === 'Emergency' ? 'em' : ''}">${esc(n.token_no)}</span>`).join('') : '<span class="small" style="color:#7fb497">none</span>'}</div>
+            <span class="small" style="color:#bfe6d1">${d.waiting} waiting</span></div>
+        </div>`).join('');
+    } catch { /* keep the last screen if the network blinks */ }
+  }
+  load(); setInterval(load, 5000);
+</script>
+</body>
+</html>

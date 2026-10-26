@@ -1,0 +1,26 @@
+{
+  "name": "mediqueue-pro",
+  "version": "2.0.0",
+  "description": "MediQueue - Smart Hospital Queue, Doctor Tracking and Billing System (SQLite or MySQL)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "db:init": "node scripts/init-db.js",
+    "seed": "node seed.js",
+    "setup": "node scripts/init-db.js && node seed.js",
+    "create-admin": "node scripts/create-admin.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.7.5",
+    "mysql2": "^3.11.0"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^12.2.0"
+  }
+}

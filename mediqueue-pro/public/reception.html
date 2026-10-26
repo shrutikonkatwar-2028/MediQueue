@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MediQueue - Reception</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/reception.html"></a>
+  <div class="right"><a class="link" href="/display.html" target="_blank">Display board</a><span id="who"></span><button class="btn light sm" onclick="logout()">Log out</button></div>
+</header>
+<nav class="tabs">
+  <button data-tab="queue" class="active">Walk-in and queue</button>
+  <button data-tab="find">Find patient and book</button>
+  <button data-tab="billing">Billing counter</button>
+</nav>
+<main>
+  <section id="tab-queue">
+    <div class="grid g2">
+      <div class="card">
+        <h2>Register a walk-in patient</h2>
+        <form id="walkForm">
+          <div class="form-grid">
+            <div><label for="wname">Patient name</label><input id="wname" required></div>
+            <div><label for="wage">Age</label><input id="wage" type="number" min="0" max="120" required></div>
+            <div><label for="wgender">Gender</label><select id="wgender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+            <div><label for="wphone">Phone</label><input id="wphone" inputmode="tel"></div>
+          </div>
+          <label for="wdoc">Doctor</label><select id="wdoc" required></select>
+          <label for="wcat">Problem</label><select id="wcat"></select>
+          <label for="wsym">Symptoms (optional)</label><textarea id="wsym" maxlength="500"></textarea>
+          <label class="check"><input type="checkbox" id="wchronic"> Has a chronic condition</label>
+          <p><button class="btn red" type="submit">Generate token</button></p>
+        </form>
+        <div id="result"></div>
+      </div>
+      <div class="card">
+        <h2>Today's appointments</h2>
+        <div class="scroll" id="today"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-find" hidden>
+    <div class="grid g2">
+      <div class="card">
+        <h2>Find an existing patient</h2>
+        <label for="pq">Name, phone or email</label>
+        <input id="pq" placeholder="Type at least 2 letters" autocomplete="off">
+        <div id="presults" style="margin-top:12px"></div>
+      </div>
+      <div class="card">
+        <h2>Book an appointment</h2>
+        <p id="pchosen" class="callout">Select a patient from the list first.</p>
+        <form id="bookForm">
+          <label for="bdoc">Doctor</label><select id="bdoc" required></select>
+          <label for="bdate">Date</label><input id="bdate" type="date" required>
+          <label for="bcat">Problem</label><select id="bcat"></select>
+          <label for="bsym">Symptoms (optional)</label><textarea id="bsym" maxlength="500"></textarea>
+          <label class="check"><input type="checkbox" id="bcheckin"> Patient is here now: check in immediately (today only)</label>
+          <p><button class="btn" type="submit" id="bookBtn" disabled>Book appointment</button></p>
+        </form>
+        <div id="bresult"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-billing" hidden>
+    <div class="card">
+      <div class="row between"><h2 style="margin:0;border:0">Bills</h2>
+        <div class="row"><input id="billSearch" placeholder="Search patient, doctor or token" style="width:230px" aria-label="Search bills">
+        <select id="billFilter" style="width:auto" aria-label="Bill status"><option value="Pending">Pending</option><option value="Paid">Paid</option><option value="Waived">Waived</option><option value="">All bills</option></select></div></div>
+      <p class="note-box" style="margin-top:10px">Only reception and admin can change payment details. Patients can only view their bills.</p>
+      <div class="scroll" id="billTable" style="margin-top:12px"></div>
+    </div>
+  </section>
+</main>
+
+<dialog id="payDlg">
+  <h2 id="payTitle">Collect payment</h2>
+  <p id="payInfo"></p>
+  <label for="payMethod">Payment method</label>
+  <select id="payMethod"><option>Cash</option><option>UPI</option><option>Card</option></select>
+  <label for="payDiscount">Discount (Rs.)</label><input id="payDiscount" type="number" min="0" value="0">
+  <div class="row" style="margin-top:16px"><button class="btn" id="payConfirm">Mark as paid</button><button class="btn ghost" id="payCancel">Cancel</button></div>
+</dialog>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/reception.js"></script>
+</body>
+</html>

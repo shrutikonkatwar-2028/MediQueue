@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MediQueue - Doctor</title>
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/doctor.html"></a>
+  <div class="right"><a class="link" href="/display.html" target="_blank">Display board</a><span id="who"></span><button class="btn light sm" onclick="logout()">Log out</button></div>
+</header>
+<nav class="tabs">
+  <button data-tab="today" class="active">Today</button>
+  <button data-tab="schedule">My schedule</button>
+</nav>
+<main>
+  <section id="tab-today">
+    <div><h1 id="docName">Doctor dashboard</h1><div id="docMeta" class="muted"></div></div>
+
+    <h2 style="margin-top:18px">My status</h2>
+    <div class="status-btns" id="statusBtns"></div>
+
+    <div class="grid g4" style="margin-top:20px">
+      <div class="stat"><b id="stWaiting">0</b><span>patients waiting</span></div>
+      <div class="stat"><b id="stSeen">0</b><span>patients seen today</span></div>
+      <div class="stat amber"><b id="stMissed">0</b><span>missed (no-show) today</span></div>
+      <div class="stat"><b id="stAvg">-</b><span>avg consultation (min)</span></div>
+    </div>
+    <p><button class="btn red lg" id="callNext">Call next patient</button></p>
+
+    <div id="current"></div>
+
+    <div class="card">
+      <h2>Priority queue</h2>
+      <div class="scroll" id="queue"></div>
+    </div>
+    <div class="card">
+      <h2>Patients seen: last 7 days</h2>
+      <div id="weekChart"></div>
+    </div>
+  </section>
+
+  <section id="tab-schedule" hidden>
+    <div class="card" style="max-width:640px">
+      <h2>My weekly schedule</h2>
+      <div id="schedEditor"></div>
+      <p><button class="btn" id="saveSched">Save schedule</button></p>
+    </div>
+  </section>
+</main>
+
+<dialog id="historyDlg">
+  <div class="row between"><h2 id="historyTitle" style="margin:0">Patient history</h2><button class="btn ghost sm" id="closeDlg">Close</button></div>
+  <div id="historyBody"></div>
+</dialog>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/charts.js"></script>
+<script src="/js/doctor.js"></script>
+</body>
+</html>
